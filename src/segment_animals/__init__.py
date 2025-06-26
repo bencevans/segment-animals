@@ -19,6 +19,7 @@ def get_default_device() -> Literal["cpu", "cuda", "mps"]:
         return "cpu"
 
 
+
 class AutoAnimalSegmenter:
     """
     AutoAnimalSegmenter is a class that combines detection and segmentation models
@@ -29,7 +30,7 @@ class AutoAnimalSegmenter:
         self,
         detection_model_name: DetectionModelNames = "MDV5A",
         detection_threshold: float = 0.15,
-        segmentation_model_name: SegmentationModelNames = "default",
+        segmentation_model_name: SegmentationModelNames = "vit_h",
         segmentation_device: Literal["cpu", "cuda", "mps"] = get_default_device(),
     ):
         self.detector = DetectionModel(

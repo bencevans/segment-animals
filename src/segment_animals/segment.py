@@ -4,9 +4,10 @@ from PIL import Image
 import numpy as np
 import torch
 from segment_animals.models import AnimalDetection
+from segment_animals.model_cache import get_model_path
 from segment_anything.utils.transforms import ResizeLongestSide
 
-SegmentationModelNames = Literal["default", "sam_vit_h_4b8939"]
+SegmentationModelNames = Literal["vit_h", "vit_l", "vit_b"]
 
 
 class SegmentationModel:
@@ -14,8 +15,15 @@ class SegmentationModel:
     Model for segmenting animals in images using SAM (Segment Anything Model).
     """
 
-    def __init__(self, model_name: SegmentationModelNames = "default", device: Literal["cpu", "cuda", "mps"] = "cpu"):
-        self.sam = sam_model_registry[model_name](checkpoint="sam_vit_h_4b8939.pth")
+    def __init__(
+        self,
+        model_name: SegmentationModelNames = "vit_h",
+        device: Literal["cpu", "cuda", "mps"] = "cpu",
+    ):
+        # Get the model path, downloading it if necessary
+        model_path = get_model_path(model_name, auto_download=True)
+
+        self.sam = sam_model_registry[model_name](checkpoint=str(model_path))
         self.sam.to(device)
         self.predictor = SamPredictor(self.sam)
         self.resize_transform = ResizeLongestSide(self.sam.image_encoder.img_size)
@@ -30,7 +38,7 @@ class SegmentationModel:
         """
         np_image = np.array(image.convert("RGB"))
         self.predictor.set_image(np_image)
-        
+
         if not detections:
             return torch.empty((0, *np_image.shape[:2]), dtype=torch.bool)
 
