@@ -1,7 +1,7 @@
 [project]
 name = "segment-animals"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Segment (Extract) Animals from Images - Removing Background"
 readme = "README.md"
 authors = [
     { name = "Ben Evans", email = "ben@bluechimp.io" }
