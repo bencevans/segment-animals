@@ -28,7 +28,7 @@ class AutoAnimalSegmenter:
 
     def __init__(
         self,
-        detection_model_name: DetectionModelNames = "MDV5A",
+        detection_model_name: DetectionModelNames = "redwood",
         detection_threshold: float = 0.15,
         segmentation_model_name: SegmentationModelNames = "vit_h",
         segmentation_device: Literal["cpu", "cuda", "mps"] = get_default_device(),
