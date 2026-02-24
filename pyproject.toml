@@ -1,6 +1,6 @@
 [project]
 name = "segment-animals"
-version = "1.0.0"
+version = "1.1.0"
 description = "Segment (Extract) Animals from Images - Removing Background"
 readme = "README.md"
 authors = [
