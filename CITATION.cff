@@ -1,0 +1,17 @@
+authors:
+- affiliation: Institute of Zoology, ZSL
+  family-names: Ben Evans
+cff-version: 1.2.0
+date-released: '2026-02-24'
+doi: 10.5281/zenodo.18755285
+identifiers:
+- type: swh
+  value: swh:1:dir:404a336a5820822e7008f27d4450b30bc4a4fc75;origin=https://doi.org/10.5281/zenodo.18755284;visit=swh:1:snp:1738d3bdf469c3877c5eb32b0c27733e968cbbb1;anchor=swh:1:rel:3795e769d1839b8259cf26af187a10325a85b470;path=bencevans-segment-animals-88a2ea1
+license:
+- mit
+message: If you use this software, please cite it using the metadata from this file.
+repository-code: https://github.com/bencevans/segment-animals/tree/v1.1.0
+title: 'bencevans/segment-animals: v1.1.0'
+type: software
+version: v1.1.0
+
