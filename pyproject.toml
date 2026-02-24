@@ -13,6 +13,7 @@ dependencies = [
     "requests>=2.32.4",
     "segment-anything",
 ]
+license = "MIT"
 
 [project.scripts]
 segment-animals = "segment_animals:main"

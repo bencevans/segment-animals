@@ -58,6 +58,6 @@ Resulting in something like this:
 
 ![Example Mask](./example_extract.png)
 
-# Working with Segment Animals?
+## Working with Segment Animals?
 
 It'd be great to hear how you're using Segment Animals! Drop me a line at Benjamin.Evans at ioz.ac.uk or open an issue on the [GitHub repository](https://github.com/bencevans/segment-animals/issues).
