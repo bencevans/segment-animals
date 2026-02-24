@@ -1,3 +1,4 @@
+from dill.tests.test_functors import h
 from PIL import Image
 from requests import get
 from io import BytesIO
@@ -23,7 +24,7 @@ def load_image(source: ImageSource) -> Image.Image:
 
     elif isinstance(source, str):
         # If the source is a URL, fetch the image from the URL
-        response = get(source)
+        response = get(source, headers={"User-Agent": "SegmentAnimals/1.0 (+https://github.com/bencevans/segment-animals)"})
         response.raise_for_status()
         return Image.open(BytesIO(response.content))
 
