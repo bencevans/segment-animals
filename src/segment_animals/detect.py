@@ -6,7 +6,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-DetectionModelNames = Literal["MDV5A", "MDV5B"]
+DetectionModelNames = Literal["MDV5A", "MDV5B", "redwood"]
 
 
 class DetectionModel:
