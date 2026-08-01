@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "megadetector>=5.0.29",
     "pillow>=11.2.1",
+    "pydantic>=2.12.5",
     "requests>=2.32.4",
     "segment-anything",
 ]
