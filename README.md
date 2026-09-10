@@ -14,7 +14,7 @@ pip install segment-animals
 
 ## Usage
 
-Here's a quick example of how to use Segment Animals, for a more detailed guide refer to the [notebook](./notebook.ipynb).
+Here's a quick example of how to use Segment Animals, for a more detailed guide refer to the [notebook](https://github.com/bencevans/segment-animals/blob/main/notebook.ipynb).
 
 ### Importing the library and processing an image
 
@@ -40,7 +40,7 @@ plot_detections_and_masks(image, detections, masks)
 
 You should then see a visualisation along the lines of this ([original image from Wikipedia](https://commons.wikimedia.org/wiki/File:Camouflaged_Predator.jpg))...
 
-![Example Segmentation](./example_viz.png)
+![Example Segmentation](https://raw.githubusercontent.com/bencevans/segment-animals/main/example_viz.png)
 
 ### Extracting and saving masks
 
@@ -56,7 +56,7 @@ for i, mask_extract in enumerate(extract_masks(image, masks, whole_image=False))
 
 Resulting in something like this:
 
-![Example Mask](./example_extract.png)
+![Example Mask](https://raw.githubusercontent.com/bencevans/segment-animals/main/example_extract.png)
 
 ## Working with Segment Animals?
 
