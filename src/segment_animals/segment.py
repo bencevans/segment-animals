@@ -1,71 +1,63 @@
 from typing import List, Literal
-from segment_anything import SamPredictor, sam_model_registry
-from PIL import Image
-import numpy as np
-import torch
-from segment_animals.models import AnimalDetection
-from segment_animals.model_cache import get_model_path
-from segment_anything.utils.transforms import ResizeLongestSide
 
-SegmentationModelNames = Literal["vit_h", "vit_l", "vit_b"]
+from PIL import Image
+import torch
+from transformers import Sam2Model, Sam2Processor
+
+from segment_animals.models import AnimalDetection
+
+SegmentationModelNames = Literal[
+    "sam2.1_hiera_tiny",
+    "sam2.1_hiera_small",
+    "sam2.1_hiera_base_plus",
+    "sam2.1_hiera_large",
+]
+
+MODEL_IDS = {
+    "sam2.1_hiera_tiny": "facebook/sam2.1-hiera-tiny",
+    "sam2.1_hiera_small": "facebook/sam2.1-hiera-small",
+    "sam2.1_hiera_base_plus": "facebook/sam2.1-hiera-base-plus",
+    "sam2.1_hiera_large": "facebook/sam2.1-hiera-large",
+}
 
 
 class SegmentationModel:
-    """
-    Model for segmenting animals in images using SAM (Segment Anything Model).
-    """
+    """Model for segmenting animals using SAM 2.1 through Transformers."""
 
     def __init__(
         self,
-        model_name: SegmentationModelNames = "vit_h",
+        model_name: SegmentationModelNames = "sam2.1_hiera_large",
         device: Literal["cpu", "cuda", "mps"] = "cpu",
     ):
-        # Get the model path, downloading it if necessary
-        model_path = get_model_path(model_name, auto_download=True)
+        if model_name not in MODEL_IDS:
+            raise ValueError(
+                f"Unknown model: {model_name}. Available models: {list(MODEL_IDS)}"
+            )
+        model_id = MODEL_IDS[model_name]
+        self.sam = Sam2Model.from_pretrained(model_id).to(device).eval()
+        self.processor = Sam2Processor.from_pretrained(model_id)
 
-        self.sam = sam_model_registry[model_name](checkpoint=str(model_path))
-        self.sam.to(device)
-        self.predictor = SamPredictor(self.sam)
-        self.resize_transform = ResizeLongestSide(self.sam.image_encoder.img_size)
-
+    @torch.inference_mode()
     def segment(self, image: Image.Image, detections: List[AnimalDetection]):
-        """
-        Segment animals in the provided image.
+        """Return one boolean CPU mask per detection, shaped (N, 1, H, W).
 
-        :param image: The input image to process.
-        :param detections: The detections to guide the segmentation.
-        :return: A list of segmentation masks.
+        Detection boxes use pixel (x, y, width, height) coordinates. The
+        processor resizes the XYXY prompts and restores masks to image size.
+        The empty result retains the existing (0, H, W) shape.
         """
-        np_image = np.array(image.convert("RGB"))
-        self.predictor.set_image(np_image)
-
         if not detections:
-            return torch.empty((0, *np_image.shape[:2]), dtype=torch.bool)
+            return torch.empty((0, image.height, image.width), dtype=torch.bool)
 
-        transformed_boxes = self.resize_transform.apply_boxes_torch(
-            torch.tensor(
-                np.atleast_2d(
-                    np.array(
-                        [
-                            [
-                                d.bbox[0],
-                                d.bbox[1],
-                                d.bbox[0] + d.bbox[2],
-                                d.bbox[1] + d.bbox[3],
-                            ]
-                            for d in detections
-                        ]
-                    )
-                )
-            ),
-            np_image.shape[:2],
+        boxes = [
+            [x, y, x + width, y + height]
+            for detection in detections
+            for x, y, width, height in [detection.bbox]
+        ]
+        inputs = self.processor(
+            images=image.convert("RGB"), input_boxes=[boxes], return_tensors="pt"
         ).to(self.sam.device)
-
-        masks, _, _ = self.predictor.predict_torch(
-            point_coords=None,
-            point_labels=None,
-            boxes=transformed_boxes,
-            multimask_output=False,
-        )
-
-        return masks.cpu()
+        outputs = self.sam(**inputs, multimask_output=False)
+        masks = self.processor.post_process_masks(
+            outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), binarize=True
+        )[0]
+        return masks.to(device="cpu", dtype=torch.bool)

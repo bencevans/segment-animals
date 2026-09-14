@@ -9,7 +9,7 @@ class AnimalDetection(BaseModel):
 
     bbox: Annotated[
         Tuple[float, float, float, float],
-        "Bounding box coordinates (x_min, y_min, x_max, y_max)",
+        "Bounding box coordinates (x_min, y_min, width, height)",
     ]
     confidence: Annotated[float, "Confidence score of the detection (0.0 to 1.0)"]
 

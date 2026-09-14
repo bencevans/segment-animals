@@ -30,7 +30,7 @@ class AutoAnimalSegmenter:
         self,
         detection_model_name: DetectionModelNames = "redwood",
         detection_threshold: float = 0.15,
-        segmentation_model_name: SegmentationModelNames = "vit_h",
+        segmentation_model_name: SegmentationModelNames = "sam2.1_hiera_large",
         segmentation_device: Literal["cpu", "cuda", "mps"] = get_default_device(),
     ):
         self.detector = DetectionModel(

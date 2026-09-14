@@ -2,11 +2,11 @@
 
 Segment Animals is a Python package for segmenting (extracting) animals from images using deep learning models. It provides a pipeline that combines object detection and segmentation to identify and extract animals from images, making it useful for wildlife research, conservation efforts, and any application where you wish to remove the background from images containing animals.
 
-Segment Animals builds upon the [Segment Anything](https://github.com/facebookresearch/segment-anything) and [MegaDetector](https://github.com/agentmorris/MegaDetector/blob/main/getting-started.md) models.
+Segment Animals builds upon the [Segment Anything 2 (SAM 2.1)](https://github.com/facebookresearch/sam2) and [MegaDetector](https://github.com/agentmorris/MegaDetector/blob/main/getting-started.md) models.
 
 # Installation
 
-You can install Segment Animals using pip:
+Install Segment Animals and its dependencies with pip:
 
 ```bash
 pip install segment-animals
@@ -29,6 +29,24 @@ image = load_image("path/to/your/image.jpg")
 detections, masks = model.process_image(image)
 print(f"Found {len(detections)} animals.")
 ```
+
+### Choosing a segmentation model
+
+The default is `sam2.1_hiera_large`. For a smaller model, pass
+`segmentation_model_name` when creating the pipeline:
+
+```python
+model = AutoAnimalSegmenter(segmentation_model_name="sam2.1_hiera_tiny")
+```
+
+Available models are `sam2.1_hiera_tiny`, `sam2.1_hiera_small`,
+`sam2.1_hiera_base_plus`, and `sam2.1_hiera_large`. Checkpoints are downloaded
+on first use through Hugging Face Transformers and reused from the Hugging Face
+cache. Set `HF_HOME` to choose a different cache location.
+The former `vit_h`, `vit_l`, and `vit_b` names are no longer supported.
+
+For development, install dependencies with `uv sync`.
+CPU, CUDA, and MPS devices can be selected with `segmentation_device`.
 
 ### Visualizing detections and masks
 
