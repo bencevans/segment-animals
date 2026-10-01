@@ -14,3 +14,6 @@ wheels/
 *.png
 *.webp
 *.pth
+!example_human.jpg
+!example_human_viz.png
+!example_human_extract.png

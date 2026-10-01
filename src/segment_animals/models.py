@@ -1,10 +1,13 @@
-from typing import Annotated, Tuple
+from typing import Annotated, Literal, Tuple
 from pydantic import BaseModel
 
 
-class AnimalDetection(BaseModel):
+DetectionClass = Literal["animal", "human", "vehicle"]
+
+
+class Detection(BaseModel):
     """
-    Model representing an animal detection.
+    Model representing a detection from MegaDetector.
     """
 
     bbox: Annotated[
@@ -12,6 +15,11 @@ class AnimalDetection(BaseModel):
         "Bounding box coordinates (x_min, y_min, width, height)",
     ]
     confidence: Annotated[float, "Confidence score of the detection (0.0 to 1.0)"]
+    category: DetectionClass = "animal"
+
+
+# Preserve the original public name for existing callers.
+AnimalDetection = Detection
 
 
 class AnimalSegment(BaseModel):

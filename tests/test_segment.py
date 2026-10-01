@@ -5,7 +5,7 @@ from PIL import Image
 import torch
 from transformers import BatchFeature
 
-from segment_animals import AutoAnimalSegmenter
+from segment_animals import AutoSegmenter
 from segment_animals.models import AnimalDetection
 from segment_animals.segment import MODEL_IDS, SegmentationModel
 from segment_animals.viz import extract_masks
@@ -31,7 +31,7 @@ class SegmentationTests(unittest.TestCase):
             patch('segment_animals.DetectionModel'),
             patch('segment_animals.SegmentationModel') as segmentor,
         ):
-            AutoAnimalSegmenter(segmentation_device='cpu')
+            AutoSegmenter(segmentation_device='cpu')
             segmentor.assert_called_once_with(model_name='sam2.1_hiera_large', device='cpu')
 
     def test_unknown_model_fails_before_download(self):

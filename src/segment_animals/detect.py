@@ -1,12 +1,26 @@
 import torch
 from megadetector.detection import run_detector
-from .models import AnimalDetection
-from typing import List, Literal
+from .models import Detection, DetectionClass
+from typing import List, Literal, Sequence
 from logging import getLogger
 
 logger = getLogger(__name__)
 
 DetectionModelNames = Literal["MDV5A", "MDV5B", "redwood"]
+CATEGORY_NAMES = {"1": "animal", "2": "human", "3": "vehicle"}
+
+
+def _validate_classes(
+    detection_classes: Sequence[DetectionClass],
+) -> tuple[DetectionClass, ...]:
+    if isinstance(detection_classes, str) or not detection_classes:
+        raise ValueError(
+            "detection_classes must be a non-empty sequence of animal, human, or vehicle"
+        )
+    selected = tuple(detection_classes)
+    if any(name not in CATEGORY_NAMES.values() for name in selected):
+        raise ValueError("Supported classes are animal, human, and vehicle")
+    return selected
 
 
 def _load_detector(model_name: str):
@@ -39,7 +53,7 @@ def _load_detector(model_name: str):
 
 class DetectionModel:
     """
-    Model for detecting animals in images.
+    Model for detecting selected MegaDetector classes in images.
     """
 
     def __init__(
@@ -47,10 +61,21 @@ class DetectionModel:
         model_name: str = "MDV5A",
         device: Literal["cpu", "cuda", "mps"] = "cpu",
         threshold: float = 0.15,
+        include_humans: bool = False,
+        *,
+        detection_classes: Sequence[DetectionClass] | None = None,
     ):
         """
         Initialize the detection model with a specified model name.
         """
+        if detection_classes is not None and include_humans:
+            raise ValueError("Specify detection_classes or include_humans, not both")
+        if detection_classes is None:
+            detection_classes = ("animal", "human") if include_humans else ("animal",)
+        selected = _validate_classes(detection_classes)
+        self.categories = {
+            key for key, name in CATEGORY_NAMES.items() if name in selected
+        }
         self.device = torch.device(device)
         logger.info(f"Loading detection model '{model_name}' on device: {self.device}")
 
@@ -59,9 +84,9 @@ class DetectionModel:
 
         self.threshold = threshold
 
-    def detect(self, image) -> List[AnimalDetection]:
+    def detect(self, image) -> List[Detection]:
         """
-        Detect animals in the provided image.
+        Detect the selected classes in the provided image.
 
         :param image: The input image to process.
         :return: A list of detections above a confidence threshold.
@@ -71,7 +96,7 @@ class DetectionModel:
         )
 
         return [
-            AnimalDetection(
+            Detection(
                 bbox=(
                     d["bbox"][0] * image.width,
                     d["bbox"][1] * image.height,
@@ -79,7 +104,8 @@ class DetectionModel:
                     d["bbox"][3] * image.height,
                 ),
                 confidence=d["conf"],
+                category=CATEGORY_NAMES[d["category"]],
             )
             for d in result["detections"]
-            if d["conf"] >= self.threshold and d["category"] == "1"
+            if d["conf"] >= self.threshold and d["category"] in self.categories
         ]

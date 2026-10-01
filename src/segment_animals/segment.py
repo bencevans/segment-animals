@@ -4,7 +4,7 @@ from PIL import Image
 import torch
 from transformers import Sam2Model, Sam2Processor
 
-from segment_animals.models import AnimalDetection
+from segment_animals.models import Detection
 
 SegmentationModelNames = Literal[
     "sam2.1_hiera_tiny",
@@ -22,7 +22,7 @@ MODEL_IDS = {
 
 
 class SegmentationModel:
-    """Model for segmenting animals using SAM 2.1 through Transformers."""
+    """Model for segmenting detected objects using SAM 2.1 through Transformers."""
 
     def __init__(
         self,
@@ -38,7 +38,7 @@ class SegmentationModel:
         self.processor = Sam2Processor.from_pretrained(model_id)
 
     @torch.inference_mode()
-    def segment(self, image: Image.Image, detections: List[AnimalDetection]):
+    def segment(self, image: Image.Image, detections: List[Detection]):
         """Return one boolean CPU mask per detection, shaped (N, 1, H, W).
 
         Detection boxes use pixel (x, y, width, height) coordinates. The

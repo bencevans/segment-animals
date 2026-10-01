@@ -44,10 +44,11 @@ def plot_detections_and_masks(image, detections, masks):
         )
         plt.text(
             detection.bbox[0] + 8,
-            detection.bbox[1] - 20,
-            f"Animal {i + 1}: {detection.confidence:.2f}",
+            max(8, detection.bbox[1] - 20),
+            f"{detection.category.capitalize()} {i + 1}: {detection.confidence:.2f}",
             color="white",
             fontsize=12,
+            verticalalignment="top",
             bbox=dict(
                 facecolor=random_color,
                 alpha=0.5,
@@ -58,9 +59,10 @@ def plot_detections_and_masks(image, detections, masks):
 
         # Create an overlay for the mask in the same color
         mask_2d = mask.squeeze()  # Remove extra dimension
-        overlay = np.zeros_like(image, dtype=np.float32)
-        overlay[mask_2d] = random_color
-        plt.imshow(overlay, alpha=0.5)
+        overlay = np.zeros((*mask_2d.shape, 4), dtype=np.float32)
+        overlay[mask_2d, :3] = random_color
+        overlay[mask_2d, 3] = 0.5
+        plt.imshow(overlay)
 
     plt.axis("off")
     plt.show()
